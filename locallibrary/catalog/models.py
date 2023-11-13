@@ -2,6 +2,9 @@ from django.db import models
 from django.urls import reverse
 import uuid
 from django.contrib import admin
+from django.contrib.auth.models import User
+
+from datetime import date
 
 
 class Genre(models.Model):
@@ -48,6 +51,13 @@ class BookInstance(models.Model):
     book = models.ForeignKey('Book', on_delete=models.SET_NULL, null=True)
     imprint = models.CharField(max_length=200)
     due_back = models.DateField(null=True, blank=True)
+    borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+    @property
+    def is_overdue(self):
+        if self.due_back and date.today() > self.due_back:
+            return True
+        return False
 
     LOAN_STATUS = (
         ('m', 'Maintenance'),
@@ -60,10 +70,13 @@ class BookInstance(models.Model):
 
     class Meta:
         ordering = ["due_back"]
+        permissions = (("can_mark_returned", "Set book as returned"),)
 
     def __str__(self):
 
         return '%s (%s)' % (self.id, self.book.title)
+
+
 
 
 class Author(models.Model):
@@ -82,39 +95,17 @@ class Author(models.Model):
         return '%s, %s' % (self.last_name, self.first_name)
 
 
-# Define the admin class
-class AuthorAdmin(admin.ModelAdmin):
-    list_display = ('last_name', 'first_name', 'date_of_birth', 'date_of_death')
-    fields = ['first_name', 'last_name', ('date_of_birth', 'date_of_death')]
-
-
-# Register the admin class with the associated model
-admin.site.register(Author, AuthorAdmin)
-
-
-# Register the Admin classes for Book using the decorator
-
-class BooksInstanceInline(admin.TabularInline):
-    model = BookInstance
-
-@admin.register(Book)
-class BookAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'display_genre')
-    inlines = [BooksInstanceInline]
 
 
 
 
-# Register the Admin classes for BookInstance using the decorator
 
-@admin.register(BookInstance)
-class BookInstanceAdmin(admin.ModelAdmin):
-    list_filter = ('status', 'due_back')
-    fieldsets = (
-        (None, {
-            'fields': ('book', 'imprint', 'id')
-        }),
-        ('Availability', {
-            'fields': ('status', 'due_back')
-        }),
-    )
+
+
+
+
+
+
+
+
+
