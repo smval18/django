@@ -1,0 +1,6 @@
+{% extends "base_generic.html" %} {% block content %}
+Delete Book
+Are you sure you want to delete the book: {{ book }}?
+
+{% csrf_token %}
+{% endblock %}
