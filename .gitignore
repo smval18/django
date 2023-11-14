@@ -1,1 +1,18 @@
+.Python
+[Bb]in
+[Ii]nclude
+[Ll]ib
+[Ll]ib64
+[Ll]ocal
+[Ss]cripts
+pyvenv.cfg
+.venv
+pip-selfcheck.json
+.idea/
+
+# Text backup files
+*.bak
+
+#Database
+*.sqlite3
 
